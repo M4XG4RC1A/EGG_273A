@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from tkinter import messagebox
+from PySide6.QtWidgets import QMessageBox
 
 from app.methods.base import MethodBase, ControlMode
 from app.instruments.EGG273A import EGG273A
@@ -103,12 +103,12 @@ class CyclicVoltammetry(MethodBase):
                 # ---- Set potential ----
                 instrument.set_value(E)
                 if DEBUGGING:
-                        print("Potential: {E}")
+                        print(f"Potential: {E}")
 
                 # ---- Real current ----
                 I = instrument.read_value()
                 if DEBUGGING:
-                        print("Current: {I}")
+                        print(f"Current: {I}")
 
                 # ---- Emit point ----
                 emit(E, I)
@@ -124,5 +124,4 @@ class CyclicVoltammetry(MethodBase):
         
         except Exception as e:
                 print(f"[WARN] Method failed: {e}")
-                messagebox.showwarning("Warning", "Select a valid method first.")
 
