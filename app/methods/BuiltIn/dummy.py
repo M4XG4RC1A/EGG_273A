@@ -47,7 +47,7 @@ class DummyMethod(MethodBase):
 
         # 🔹 Wrap the low-level device into an instrument
         instrument = EGG273A(self.device)
-
+ 
         try:
             # --- Configure instrument ---
             instrument.set_mode(self.mode)

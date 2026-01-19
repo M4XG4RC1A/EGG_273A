@@ -518,7 +518,7 @@ class MainPage(ctk.CTkFrame):
 
             def task():
                 try:
-                    method.run(self.stop_event, emit, progress_cb)
+                    method.run(self.controller.stop_event, emit, progress_cb)
                 finally:
                     csv_file.close()
                     print(f"Data saved to: {filepath}")
