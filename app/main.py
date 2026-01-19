@@ -194,7 +194,7 @@ class MainPage(ctk.CTkFrame):
         self.initial_state = initial_state
 
         # VISA Resource Manager
-        self.rm = pyvisa.ResourceManager('@py') ##Change to '@py'
+        self.rm = pyvisa.ResourceManager() ##Change to '@py'
         self.device = None
 
         # layout: left status bar + main area
@@ -601,7 +601,7 @@ class MainPage(ctk.CTkFrame):
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-    def _refresh_devices(self):
+    def _refresh_devices(self, event=None):
         # refresh VISA device list
         devices = safe_list_resources()
         self.device_combo.configure(values=devices)
