@@ -623,9 +623,11 @@ class MainPage(ctk.CTkFrame):
         # For now, attempt to open resource to test connection (non-blocking quick test)
         try:
             self.device = self.rm.open_resource(dev)
-            self.device.read_termination = '\r\n'
-            self.device.write_termination = '\r\n'
-            self.device.timeout = 5000
+            self.device.read_termination = '\r'
+            self.device.write_termination = '\r'
+            self.device.timeout = 10000
+
+            time.sleep(0.3)
 
             # Initialize device
             # self.device.write("MODE 2")  # potentiostat mode
