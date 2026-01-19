@@ -1,4 +1,5 @@
 # app/instruments/EEG273A.py
+import math
 from app.instruments.base import InstrumentBase
 from app.methods.base import ControlMode
 from app.config import DEBUGGING
@@ -39,7 +40,29 @@ class EGG273A(InstrumentBase):
             if self.mode == ControlMode.POTENTIOSTAT:
                 self.device.write(f"SETE {value}")
             else:
-                self.device.write(f"SETI {value}")
+                I = float(value)
+
+                if I == 0:
+                    n1, n2 = 0,-6
+                else:
+                    sign = -1 if I<0 else 1
+                    I_abs = abs(I)
+
+                # Find exponent so mantissa is within limits
+                n2 = int(math.floor(math.log10(I_abs)))
+                n2 = max(min(n2, -3), -10)
+
+                n1 = int(round(I_abs / (10 ** n2)))
+                n1 *= sign
+
+                # Clamp mantissa
+                if abs(n1) > 2000:
+                    n1 = 2000 * sign
+
+                if DEBUGGING:
+                    print(f"SETI {n1} {n2}  -> {n1 * 10**n2:.3e} A")
+
+                self.device.write(f"SETI {n1} {n2}")
 
     def read_value(self):
         if DEBUGGING and self.device is None:
