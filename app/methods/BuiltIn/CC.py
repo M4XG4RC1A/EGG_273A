@@ -92,21 +92,14 @@ class GalvanostaticConstantCurrent(MethodBase):
 
             if DEBUGGING:
                 print("✅ Galvanostatic run finished\n")
+                instrument.set_value(0)
 
         except Exception as e:
             print(f"[WARN] Galvanostatic method failed: {e}")
 
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Galvanostatic Error")
-            msg.setText("An error occurred during galvanostatic measurement.")
-            msg.setInformativeText(str(e))
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-
         finally:
             # Always turn current OFF
             try:
-                instrument.set_value(0.0)
+                instrument.set_value(0)
             except Exception:
                 pass
