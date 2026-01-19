@@ -256,7 +256,7 @@ class MainPage(ctk.CTkFrame):
 
         # Device selection
         ctk.CTkLabel(frame, text="Available devices (VISA):").grid(row=row+6, column=0, sticky="w", padx=12, pady=(6,2))
-        self.device_combo = ctk.CTkComboBox(frame, values=self.initial_state.get("visa_devices", []), command=self._refresh_devices)
+        self.device_combo = ctk.CTkComboBox(frame, values=self.initial_state.get("visa_devices", []), state="readonly")
         self.device_combo.configure(state="readonly")
         self.device_combo.set("Refresh devices")
         self.device_combo.grid(row=row+7, column=0, sticky="we", padx=12, pady=(0,6))
