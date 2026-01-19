@@ -1,96 +1,128 @@
 import time
-import math
+import numpy as np
+from tkinter import messagebox
 
 from app.methods.base import MethodBase, ControlMode
+from app.instruments.EGG273A import EGG273A
+from app.config import DEBUGGING
 
 
-class CVMethod(MethodBase):
-    """
-    Cyclic Voltammetry (potentiostatic).
-    """
-
+class CyclicVoltammetry(MethodBase):
     name = "Cyclic Voltammetry"
     mode = ControlMode.POTENTIOSTAT
+
+    xlabel = "Potential (V)"
+    ylabel = "Current (A)"
 
     @classmethod
     def parameters(cls):
         return {
-            "start_voltage": {
-                "label": "Start Voltage (V)",
-                "type": float,
+            "E_start": {
+                "label": "Start Potential (V)",
                 "default": -0.5
             },
-            "vertex_voltage": {
-                "label": "Vertex Voltage (V)",
-                "type": float,
+            "E_vertex": {
+                "label": "Vertex Potential (V)",
                 "default": 0.5
             },
             "scan_rate": {
                 "label": "Scan Rate (V/s)",
-                "type": float,
-                "default": 0.1
+                "default": 0.05
             },
             "cycles": {
-                "label": "Number of cycles",
-                "type": int,
+                "label": "Number of Cycles",
                 "default": 1
             },
-            "dt": {
-                "label": "Time step (s)",
-                "type": float,
-                "default": 0.01
+            "step": {
+                "label": "Potential Step (V)",
+                "default": 0.005
             }
         }
 
-    def run(self, stop_event, emit):
+    # -------------------------------------------------
+    # Main execution
+    # -------------------------------------------------
+    def run(self, stop_event, emit, progress_cb):
+
+        # -----------------------------
+        # Read parameters
+        # -----------------------------
+        E_start = self.params["E_start"]
+        E_vertex = self.params["E_vertex"]
+        scan_rate = self.params["scan_rate"]
+        cycles = int(self.params["cycles"])
+        step = self.params["step"]
+
+        # -----------------------------
+        # DEBUG MODE PRINT
+        # -----------------------------
+        if DEBUGGING:
+            print("\n========== CV DEBUG MODE ==========")
+            print(f"E_start    = {E_start} V")
+            print(f"E_vertex   = {E_vertex} V")
+            print(f"Scan rate  = {scan_rate} V/s")
+            print(f"Cycles     = {cycles}")
+            print(f"Step       = {step} V")
+            print("===================================\n")
+
+        # -----------------------------
+        # Generate potential waveform
+        # -----------------------------
+        forward = np.arange(E_start, E_vertex, step)
+        backward = np.arange(E_vertex, E_start, -step)
+        single_cycle = np.concatenate((forward, backward))
+        waveform = np.tile(single_cycle, cycles)
+
+        total_points = len(waveform)
+
+        # dwell time per point
+        dt = step / scan_rate
+
+        # -----------------------------
+        # REAL DEVICE MODE
+        # -----------------------------
+
+        # 🔹 Wrap the low-level device into an instrument
+        instrument = EGG273A(self.device)
+
         try:
-            p = self.params
+            # --- Configure instrument ---
+            instrument.set_mode(self.mode)
+            instrument.set_value(E_start)
 
-            start_v = float(p.get("start_voltage", -0.5))
-            vertex_v = float(p.get("vertex_voltage", 0.5))
-            scan_rate = float(p.get("scan_rate", 0.1))
-            cycles = int(p.get("cycles", 1))
-            dt = float(p.get("dt", 0.01))
+            # -----------------------------
+            # Run CV
+            # -----------------------------
+            for i, E in enumerate(waveform):
 
-            dv = scan_rate * dt
-            voltage = start_v
+                if stop_event.is_set():
+                    if DEBUGGING:
+                        print("⏹ CV stopped by user")
+                    break
 
-            for _ in range(cycles):
+                # ---- Set potential ----
+                instrument.set_value(E)
+                if DEBUGGING:
+                        print("Potential: {E}")
 
-                # Forward scan
-                while voltage <= vertex_v:
+                # ---- Real current ----
+                I = instrument.read_value()
+                if DEBUGGING:
+                        print("Current: {I}")
 
-                    if stop_event.is_set():
-                        print("CV stopped by user.")
-                        return
+                # ---- Emit point ----
+                emit(E, I)
 
-                    current = self._fake_current(voltage)
-                    emit(voltage, current)
+                # ---- Progress ----
+                progress_cb((i + 1) / total_points)
 
-                    voltage += dv
-                    time.sleep(dt)
+                time.sleep(dt)
 
-                # Reverse scan
-                while voltage >= start_v:
 
-                    if stop_event.is_set():
-                        print("CV stopped by user.")
-                        return
-
-                    current = self._fake_current(voltage)
-                    emit(voltage, current)
-
-                    voltage -= dv
-                    time.sleep(dt)
-
-            print("CV finished successfully.")
-
+            if DEBUGGING:
+                print("✅ CV finished\n")
+        
         except Exception as e:
-            print(f"CV error: {e}")
-            raise
+                print(f"[WARN] Method failed: {e}")
+                messagebox.showwarning("Warning", "Select a valid method first.")
 
-        finally:
-            self.safe_shutdown()
-
-    def _fake_current(self, voltage):
-        return math.tanh(5 * voltage) + 0.05 * math.sin(20 * voltage)
