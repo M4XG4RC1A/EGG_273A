@@ -125,3 +125,9 @@ class CyclicVoltammetry(MethodBase):
         except Exception as e:
                 print(f"[WARN] Method failed: {e}")
 
+        finally:
+            # Always turn current OFF
+            try:
+                instrument.set_value(0.0)
+            except Exception:
+                pass
