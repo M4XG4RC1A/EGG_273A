@@ -11,31 +11,31 @@ class CyclicVoltammetry(MethodBase):
     name = "Cyclic Voltammetry"
     mode = ControlMode.POTENTIOSTAT
 
-    xlabel = "Potential (V)"
+    xlabel = "Potential (mV)"
     ylabel = "Current (A)"
 
     @classmethod
     def parameters(cls):
         return {
             "E_start": {
-                "label": "Start Potential (V)",
-                "default": -0.5
+                "label": "Start Potential (mV)",
+                "default": -500
             },
             "E_vertex": {
-                "label": "Vertex Potential (V)",
-                "default": 0.5
+                "label": "Vertex Potential (mV)",
+                "default": 500
             },
             "scan_rate": {
-                "label": "Scan Rate (V/s)",
-                "default": 0.05
+                "label": "Scan Rate (mV/s)",
+                "default": 50
             },
             "cycles": {
                 "label": "Number of Cycles",
                 "default": 1
             },
             "step": {
-                "label": "Potential Step (V)",
-                "default": 0.005
+                "label": "Potential Step (mV)",
+                "default": 5
             }
         }
 
