@@ -42,11 +42,21 @@ class EGG273A(InstrumentBase):
             else:
                 I = float(value)
 
+                # ---------------- ZERO CURRENT ----------------
                 if I == 0:
-                    n1, n2 = 0,-6
-                else:
-                    sign = -1 if I<0 else 1
-                    I_abs = abs(I)
+                    n1, n2 = 0, -6
+
+                    if DEBUGGING:
+                        print(f"SETI {n1} {n2}  -> 0 A")
+
+                    if not (DEBUGGING and self.device is None):
+                        self.device.write(f"SETI {n1} {n2}")
+                    return  # ✅ IMPORTANT
+                # ---------------------------------------------
+
+                # Non-zero current
+                sign = -1 if I < 0 else 1
+                I_abs = abs(I)
 
                 # Find exponent so mantissa is within limits
                 n2 = int(math.floor(math.log10(I_abs)))
