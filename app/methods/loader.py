@@ -36,9 +36,29 @@ def load_methods_from_folder(folder: pathlib.Path):
 
 
 def discover_methods():
-    base_dir = pathlib.Path(sys.executable).parent
 
-    builtin = load_methods_from_folder(base_dir / "app/methods/BuiltIn")
-    plugins = load_methods_from_folder(base_dir / "app/methods/plugins")
+    candidates = []
 
-    return builtin + plugins
+    # 1️⃣ Normal source execution
+    candidates.append(
+        pathlib.Path(__file__).parent / "BuiltIn"
+    )
+
+    # 2️⃣ EXE moved to project root
+    if getattr(sys, "frozen", False):
+        exe_dir = pathlib.Path(sys.executable).parent
+        candidates.append(
+            exe_dir / "app/methods/BuiltIn"
+        )
+
+    methods = []
+
+    for folder in candidates:
+        if folder.exists():
+            print(f"[METHOD LOADER] Using: {folder}")
+            methods.extend(load_methods_from_folder(folder))
+            break
+    else:
+        print("[METHOD LOADER] No BuiltIn methods found")
+
+    return methods
