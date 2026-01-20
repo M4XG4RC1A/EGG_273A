@@ -17,7 +17,7 @@ import re
 import csv
 import pyvisa
 
-from app.methods.loader import discover_methods
+from app.methods.loader import load_methods
 from app.instruments.EGG273A import EGG273A
 from app.config import DEBUGGING
 
@@ -32,7 +32,7 @@ METHODS_FOLDER = "Methods"
 WINDOW_SIZE = "900x640"
 METHODS_PATHS = ["Methods/BuiltIn", "Methods/Custom"]
 
-method_classes = discover_methods()
+method_classes = load_methods()
 print("Available methods:")
 for i, method_cls in enumerate(method_classes):
     print(f"{i + 1}. {method_cls.name}")

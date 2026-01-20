@@ -1,23 +1,44 @@
-import importlib
-import pkgutil
+import importlib.util
+import pathlib
+import sys
 
 from app.methods.base import MethodBase
 
-def load_methods():
-    method_classes = []
 
-    package_name = "app.methods.BuiltIn"
-    package = importlib.import_module(package_name)
+def load_methods_from_folder(folder: pathlib.Path):
+    methods = []
 
-    for _, module_name, _ in pkgutil.iter_modules(package.__path__):
-        module = importlib.import_module(f"{package_name}.{module_name}")
+    if not folder.exists():
+        return methods
 
-        for obj in vars(module).values():
+    for file in folder.glob("*.py"):
+        if file.name.startswith("_"):
+            continue
+
+        spec = importlib.util.spec_from_file_location(file.stem, file)
+        module = importlib.util.module_from_spec(spec)
+
+        try:
+            spec.loader.exec_module(module)
+        except Exception as e:
+            print(f"[METHOD LOAD ERROR] {file.name}: {e}")
+            continue
+
+        for obj in module.__dict__.values():
             if (
                 isinstance(obj, type)
                 and issubclass(obj, MethodBase)
                 and obj is not MethodBase
             ):
-                method_classes.append(obj)
+                methods.append(obj)
 
-    return method_classes
+    return methods
+
+
+def discover_methods():
+    base_dir = pathlib.Path(__file__).parent
+
+    builtin = load_methods_from_folder(base_dir / "BuiltIn")
+    plugins = load_methods_from_folder(base_dir / "plugins")
+
+    return builtin + plugins
