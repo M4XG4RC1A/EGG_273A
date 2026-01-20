@@ -61,10 +61,12 @@ class EGG273A(InstrumentBase):
                     if abs(n1) > 2000:
                         n1 = 2000 * sign
 
+                self.device.write(f"SETI {n1} {n2}")
+
                 if DEBUGGING:
                     print(f"SETI {n1} {n2}  -> {n1 * 10**n2:.3e} A")
 
-                self.device.write(f"SETI {n1} {n2}")
+                
 
     def read_value(self):
         if DEBUGGING and self.device is None:

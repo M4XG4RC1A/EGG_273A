@@ -92,7 +92,8 @@ class GalvanostaticConstantCurrent(MethodBase):
 
             if DEBUGGING:
                 print("✅ Galvanostatic run finished\n")
-                instrument.set_value(0)
+                
+            instrument.set_value(0)
 
         except Exception as e:
             print(f"[WARN] Galvanostatic method failed: {e}")

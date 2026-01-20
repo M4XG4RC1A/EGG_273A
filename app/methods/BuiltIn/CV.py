@@ -121,6 +121,8 @@ class CyclicVoltammetry(MethodBase):
 
             if DEBUGGING:
                 print("✅ CV finished\n")
+
+            instrument.set_value(0)
         
         except Exception as e:
                 print(f"[WARN] Method failed: {e}")
