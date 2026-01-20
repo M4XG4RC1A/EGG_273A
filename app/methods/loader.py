@@ -38,7 +38,7 @@ def load_methods_from_folder(folder: pathlib.Path):
 def discover_methods():
     base_dir = pathlib.Path(__file__).parent
 
-    builtin = load_methods_from_folder(base_dir / "BuiltIn")
+    builtin = load_methods_from_folder("app/methods/BuiltIn")
     plugins = load_methods_from_folder(base_dir / "plugins")
 
     return builtin + plugins
