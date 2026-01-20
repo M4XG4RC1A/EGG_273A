@@ -84,7 +84,6 @@ class EGG273A(InstrumentBase):
             else:
                 self.device.write("READE")
                 response = self.device.read().strip().split(',')                
-                print(response)
-                voltage = float(response)
+                voltage = float(response[0])
 
                 return voltage
