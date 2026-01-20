@@ -125,7 +125,7 @@ class LoadingFrame(SafeFrame):
         self._update_ui(steps[0][0], steps[0][1], 0.05)
         time.sleep(0.35)
         os.makedirs(DATA_FOLDER, exist_ok=True)
-        os.makedirs(METHODS_FOLDER, exist_ok=True)
+        #os.makedirs(METHODS_FOLDER, exist_ok=True)
         time.sleep(0.2)
         self._update_ui(steps[0][0], f"Folders ready: '{DATA_FOLDER}', '{METHODS_FOLDER}'", 0.15)
         time.sleep(0.25)
